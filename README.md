@@ -392,3 +392,27 @@ I create and commit file-service migrations
 We pull and run flask db upgrade to apply each other’s schema locally
 
 We do not share data, only schema
+
+## Sample Users
+How Sample Users Are Added
+
+Run these lines in terminal:(you can create more user also)
+$env:ADMIN_USERNAME="admin"
+$env:ADMIN_PASSWORD="admin123"
+$env:USER_USERNAME="user1"
+$env:USER_PASSWORD="user123"
+python sample_users.py
+** You don't need to run this all the time only if when you create new user **
+
+
+The script will:
+Hash passwords using werkzeug.security.generate_password_hash
+Insert users into the users table
+Skip creation if the user already exists (safe to re-run)
+
+
+Current Sample Users (Local Dev)
+Role	Username	Password
+Admin	admin	admin123
+User	user1	user123
+Passwords are stored as hashes in the database, not in plaintext.

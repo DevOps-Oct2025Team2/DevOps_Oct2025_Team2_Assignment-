@@ -1,0 +1,13 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Local seed scripts
+sample_users.py
+
+# Environment files
+.env
+.env.*
+
+# VS Code
+.vscode/
