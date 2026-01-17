@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from flask_migrate import Migrate
 from db import db
@@ -6,7 +7,8 @@ from routes import auth_routes
 
 app = Flask(__name__)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = (
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
+    "DATABASE_URL",
     "postgresql+psycopg2://auth_user:auth_pass@localhost:5433/auth_db"
 )
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False

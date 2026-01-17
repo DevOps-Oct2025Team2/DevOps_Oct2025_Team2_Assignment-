@@ -2,17 +2,24 @@
 from functools import wraps
 import os
 import jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from flask import Blueprint, request, jsonify
 from werkzeug.security import check_password_hash
 from models import User
+from pathlib import Path
 
 # Blueprint
 auth_routes = Blueprint("auth_routes", __name__)
 
-# JWT Configuration
-PRIVATE_KEY = os.getenv("JWT_PRIVATE_KEY")
-PUBLIC_KEY = os.getenv("JWT_PUBLIC_KEY")
+# JWT Configuration (ES256)
+BASE_DIR = Path(__file__).resolve().parent
+
+with open(BASE_DIR / "ec_private.pem", "r") as f:
+    PRIVATE_KEY = f.read()
+
+with open(BASE_DIR / "ec_public.pem", "r") as f:
+    PUBLIC_KEY = f.read()
+
 JWT_EXPIRY_HOURS = 1
 
 # LOGIN API (Authentication)
@@ -37,7 +44,7 @@ def login():
     payload = {
         "user_id": user.id,
         "role": user.role,
-        "exp": datetime.utcnow() + timedelta(hours=JWT_EXPIRY_HOURS)
+        "exp": datetime.now(UTC) + timedelta(hours=JWT_EXPIRY_HOURS)
     }
 
     token = jwt.encode(payload, PRIVATE_KEY, algorithm="ES256")
