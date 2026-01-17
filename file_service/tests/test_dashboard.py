@@ -7,6 +7,10 @@ from file_service.app import app
 def test_returns_only_files_owned_by_user():
     """Test get_files_for_user function"""
     with app.app_context():
+        # CLEANUP - ensure deterministic test state
+        File.query.delete()
+        db.session.commit()
+
         # ARRANGE - Set up the world
         file_user_a = File(
             owner_user_id=1,

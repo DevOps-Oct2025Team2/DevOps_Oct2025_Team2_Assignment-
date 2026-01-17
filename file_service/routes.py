@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from .models import File
+from .dashboard import get_files_for_user
 
 
 bp = Blueprint("routes", __name__)
@@ -15,12 +16,7 @@ def dashboard():
     user_id = int(user_id)
 
     # AC-DASH-03/04: server-enforced ownership filtering + empty list is OK
-    files = (
-        File.query
-        .filter_by(owner_user_id=user_id)
-        .order_by(File.created_at.desc())
-        .all()
-    )
+    files = get_files_for_user(user_id)
 
     return jsonify({
         "files": [
