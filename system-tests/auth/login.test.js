@@ -56,3 +56,55 @@ describe("AC-LOGIN-02 — Failed Login (Invalid Credentials)", () => {
     }
   });
 });
+
+// Test case for input validation ( AC-LOGIN-03 )
+describe("AC-LOGIN-03 — Input Validation", () => {
+
+  it("should reject login when username and password are empty", async () => {
+    try {
+      await axios.post(
+        "http://127.0.0.1:5000/api/login",
+        {
+          username: "",
+          password: ""
+        }
+      );
+
+      // If backend accepts this, it's a FAIL
+      throw new Error("Login should not proceed with empty credentials");
+
+    } catch (error) {
+      const response = error.response;
+
+      // Expect validation failure
+      expect(response.status).toBe(400); 
+      // Ensure no token is issued
+      expect(response.data.access_token).toBeUndefined();
+
+      // Validation error message should be present
+      expect(response.data.message || response.data.error).toBeDefined();
+    }
+  });
+
+  it("should reject login when inputs do not meet format constraints", async () => {
+    try {
+      await axios.post(
+        "http://127.0.0.1:5000/api/login",
+        {
+          username: "!!@@##",
+          password: "123"
+        }
+      );
+
+      throw new Error("Login should not proceed with invalid input format");
+
+    } catch (error) {
+      const response = error.response;
+
+      expect(response.status).toBe(401);
+      expect(response.data.access_token).toBeUndefined();
+      expect(response.data.message || response.data.error).toBeDefined();
+    }
+  });
+
+});
