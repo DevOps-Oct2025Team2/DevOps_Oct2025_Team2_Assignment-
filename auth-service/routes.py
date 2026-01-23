@@ -121,3 +121,19 @@ def admin_dashboard():
 @auth_routes.post("/logout")
 def logout():
     return jsonify({"message": "Logged out"}), 200
+
+@auth_routes.route("/admin/users", methods=["GET"])
+@token_required
+@admin_required
+def get_all_users():
+    users = User.query.all()
+
+    return jsonify([
+        {
+            "id": u.id,
+            "username": u.username,
+            "role": u.role,
+            "created_at": u.created_at.isoformat()
+        }
+        for u in users
+    ]), 200
