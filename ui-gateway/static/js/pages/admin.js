@@ -40,5 +40,59 @@ function loadUsers() {
     });
 }
 
+function addUser() {
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value.trim();
+
+  if (!username || !password) {
+    alert("Username and password are required");
+    return;
+  }
+
+  fetch("http://localhost:5000/api/admin/users", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({
+      username,
+      password
+    })
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("Failed to create user");
+      return res.json();
+    })
+    .then(() => {
+      document.getElementById("username").value = "";
+      document.getElementById("password").value = "";
+      loadUsers(); // refresh table
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Error creating user");
+    });
+}
+
+function deleteUser(id) {
+  if (!confirm("Are you sure you want to delete this user?")) return;
+
+  fetch(`http://localhost:5000/api/admin/users/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("Delete failed");
+      loadUsers();
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Error deleting user");
+    });
+}
+
 loadUsers();
 
