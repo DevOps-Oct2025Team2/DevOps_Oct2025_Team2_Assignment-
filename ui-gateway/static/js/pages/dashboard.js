@@ -1,5 +1,5 @@
 // ui-gateway/static/js/pages/dashboard.js
-import { getDashboardFiles, uploadFile } from "../api/fileApi.js";
+import { getDashboardFiles, uploadFile, deleteFile, downloadFile } from "../api/fileApi.js";
 
 /**
  * Dashboard page controller
@@ -30,7 +30,6 @@ function showMessage(text, isError = false) {
 function renderFiles(files) {
     if (!filesContainer) return;
 
-    // Clear existing content
     filesContainer.innerHTML = "";
 
     // Empty state (AC-DASH-04)
@@ -41,18 +40,79 @@ function renderFiles(files) {
         return;
     }
 
-    // Simple list view
     const ul = document.createElement("ul");
+
     for (const f of files) {
         const li = document.createElement("li");
+        li.style.marginBottom = "10px";
 
-        // Basic formatting for size (bytes)
-        li.textContent = `${f.filename} (${f.size_bytes} bytes) - ${f.content_type}`;
+        const info = document.createElement("span");
+        info.textContent = `${f.filename} (${f.size_bytes} bytes) - ${f.content_type}`;
+        li.appendChild(info);
+
+        // --- Download button ---
+        const downloadBtn = document.createElement("button");
+        downloadBtn.textContent = "Download";
+        downloadBtn.style.marginLeft = "10px";
+        downloadBtn.addEventListener("click", async () => {
+        try {
+            showMessage("Downloading...");
+            downloadBtn.disabled = true;
+
+            const { blob, filename } = await downloadFile(f.id);
+
+            // Trigger browser download
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = filename || f.filename || "download";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+
+            showMessage("Download started.");
+        } catch (err) {
+            console.error(err);
+            showMessage(err.message || "Download failed.", true);
+        } finally {
+            downloadBtn.disabled = false;
+        }
+        });
+        li.appendChild(downloadBtn);
+
+        // --- Delete button ---
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "Delete";
+        delBtn.style.marginLeft = "6px";
+        delBtn.addEventListener("click", async () => {
+        const ok = confirm(`Delete "${f.filename}"? This cannot be undone.`);
+        if (!ok) return;
+
+        try {
+            showMessage("Deleting...");
+            delBtn.disabled = true;
+
+            const res = await deleteFile(f.id);
+            showMessage(res?.message || "File deleted successfully.");
+
+            // Refresh list so file disappears (AC-FILE-03)
+            await loadDashboard();
+        } catch (err) {
+            console.error(err);
+            showMessage(err.message || "Delete failed.", true);
+        } finally {
+            delBtn.disabled = false;
+        }
+        });
+        li.appendChild(delBtn);
 
         ul.appendChild(li);
     }
+
     filesContainer.appendChild(ul);
 }
+
 
 // Fetch dashboard files and render them
 async function loadDashboard() {

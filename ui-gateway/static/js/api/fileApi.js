@@ -4,11 +4,6 @@
 // Base URL for file_service in local dev mode. If later run docker-compose and map ports, change this One line
 const FILE_SERVICE_BASE = "http://localhost:5002";
 
-// Temporary helper to get user id, in real auth need to decode JWT
-function getUserIdForDev(){
-    return 1; // assum logged in user is ID 1
-}
-
 // Helpers: build headers for file_service request
 // Backend expects X-User-Id for auth simulation
 
@@ -22,7 +17,7 @@ function buildAuthHeaders(extraHeaders = {}){
     }
 
     return{
-        "X-User-Id": String(getUserIdForDev()),
+        "Authorisation" : `Bearer ${token}`,
         ...extraHeaders,
     };
 }
@@ -77,4 +72,56 @@ export async function uploadFile(file){
     }
 
     return resp.json();
+}
+
+// POST /dashboard/delete/<file_id>
+export async function deleteFile(fileId){
+    const resp = await fetch(`${FILE_SERVICE_BASE}/dashboard/delete/${fileId}`, {
+        method: "POST",
+        headers: buildAuthHeaders(),
+    });
+
+    if (resp.status === 401){
+        throw new Error("Unauthorised (401). Please login again.");
+    }
+
+    if (!resp.ok){
+        let msg = `Delete failed (HTTP ${resp.status})`;
+        try{
+            const body = await resp.json();
+            if (body?.error) msg = body.error;
+        } catch (_) {}
+        throw new Error(msg);
+    }
+    return resp.json();
+}
+
+// GET /dashboard/download/<file_id>
+export async function downloadFile(fileId){
+    const resp = await fetch (`${FILE_SERVICE_BASE}/dashboard/download/${fileId}`, {
+        method: "GET",
+        headers: buildAuthHeaders(),
+    });
+
+    if (resp.status === 401){
+        throw new Error("Unauthorised (401). Please login again.");
+    }
+
+    if (!resp.ok){
+        let msg = `Download failed (HTTP ${resp.status})`;
+        try{
+            const body = await resp.json();
+            if (body?.error) msg = body.error;
+        }catch (_) {}
+        throw new Error(msg);
+    }
+
+    // Extract filename from Content-Disposition if available
+    const cd = resp.headers.get("Content-Disposition") || "";
+    let filename = "download";
+    const match = cd.match(/filename="([^"]+)"/i);
+    if (match && match[1]) filename = match[1];
+
+    const blob = await resp.blob();
+    return { blob, filename };
 }
