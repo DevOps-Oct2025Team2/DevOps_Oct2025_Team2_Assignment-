@@ -4,18 +4,17 @@ from models import File
 from dashboard import get_files_for_user, delete_file_for_user, get_file_for_download
 from flask import current_app #The Flask app that is handling this request right now
 from upload import save_upload_for_user
+from auth import get_authenticated_user_id
 
 bp = Blueprint("routes", __name__)
 
 @bp.get("/dashboard")
 def dashboard():
-    user_id = request.headers.get("X-User-Id")
+    user_id = get_authenticated_user_id(request)
 
     #AC-DASH-02: unauthenticated -> 401
-    if not user_id or not user_id.isdigit():
+    if not user_id:
         return jsonify({"error": "Unauthorized"}), 401
-    
-    user_id = int(user_id)
 
     # AC-DASH-03/04: server-enforced ownership filtering + empty list is OK
     files = get_files_for_user(user_id)
@@ -37,14 +36,11 @@ def dashboard():
 @bp.post("/dashboard/upload")
 def upload_dashboard_file():
     # Auth check - simulate authentication using HTTP header
-    user_id = request.headers.get("X-User-Id")
+    user_id = get_authenticated_user_id(request)
 
     # If header missing / invalid, reject immediately
-    if not user_id or not user_id.isdigit():
-        return jsonify({"error" : "Unauthorised"}), 401
-    
-    # Convert to int once validated (business logic expects int)
-    user_id = int(user_id)
+    if not user_id:
+        return jsonify({"error": "Unauthorized"}), 401
     
     # Uploaded files are sent via multipart/form-data
     # Flask stores them in request.files (a dict-like object).
@@ -63,7 +59,7 @@ def upload_dashboard_file():
     try:
          # Call Business logic
         saved = save_upload_for_user(
-            user_id=int(user_id),
+            user_id=user_id,
             file_storage=file_storage,
             upload_dir=upload_dir,
             max_size=max_size,
@@ -87,11 +83,11 @@ def upload_dashboard_file():
 
 @bp.post("/dashboard/delete/<int:file_id>")
 def delete_file(file_id: int):
-    user_id = request.headers.get("X-User-Id")
-    if not user_id or not user_id.isdigit():
-        return jsonify({"error": "Unauthorised"}), 401
+    user_id = get_authenticated_user_id(request)
+    if not user_id:
+        return jsonify({"error": "Unauthorized"}), 401
     
-    ok = delete_file_for_user(int(user_id), file_id)
+    ok = delete_file_for_user(user_id, file_id)
     if not ok:
         return jsonify({"error": "Not found"}), 404
     
@@ -99,15 +95,15 @@ def delete_file(file_id: int):
 
 @bp.get("/dashboard/download/<int:file_id>")
 def download_file(file_id: int):
-    user_id = request.headers.get("X-User-Id")
-    if not user_id or not user_id.isdigit():
-        return jsonify({"error": "Unauthorised"}), 401
+    user_id = get_authenticated_user_id(request)
+    if not user_id:
+        return jsonify({"error": "Unauthorized"}), 401
     
-    f = get_file_for_download(int(user_id), file_id)
+    f = get_file_for_download(user_id, file_id)
     if not f:
         return jsonify({"error": "Not found"}), 404
     
-    # If record exists but file missing on dusk -> treat as not found
+    # If record exists but file missing on disk -> treat as not found
     if not f.storage_path or not os.path.exists(f.storage_path):
         return jsonify({"error": "Not found"}), 404
     

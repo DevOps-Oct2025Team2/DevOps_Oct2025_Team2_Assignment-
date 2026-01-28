@@ -9,7 +9,8 @@ def create_app(database_uri=None):
     CORS(
         app,
         origins=["http://localhost:3000", "http://127.0.0.1:3000"],
-        allow_headers=["Content-Type", "X-User-Id", "Authorization"],
+        allow_headers="*",
+        expose_headers=["Content-Disposition"],
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         supports_credentials=False,
     )
