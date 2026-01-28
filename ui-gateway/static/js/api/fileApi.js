@@ -5,7 +5,6 @@
 const FILE_SERVICE_BASE = "http://localhost:5002";
 
 // Helpers: build headers for file_service request
-// Backend expects X-User-Id for auth simulation
 
 function buildAuthHeaders(extraHeaders = {}){
     const token = localStorage.getItem("access_token");
