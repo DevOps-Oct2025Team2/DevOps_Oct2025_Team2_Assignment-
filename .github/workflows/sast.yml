@@ -49,3 +49,21 @@ jobs:
         uses: github/codeql-action/analyze@v3
         with:
           category: sast
+          output: reports
+          upload: false
+
+      # Step 6: Upload SARIF to GitHub Security tab
+      - name: Upload SARIF to Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: reports/python.sarif
+          category: sast
+
+      # Step 7: Upload SARIF reports as artifacts
+      - name: Upload SAST reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sast-reports
+          path: reports/
