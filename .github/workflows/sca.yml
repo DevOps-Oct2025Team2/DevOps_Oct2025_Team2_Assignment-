@@ -2,11 +2,7 @@ name: SCA - Dependency Vulnerability Scan
 
 on:
   push:
-    branches:
-      - qa/system-tests
   pull_request:
-    branches:
-      - dev
 
 jobs:
   sca:
