@@ -1,0 +1,33 @@
+name: SCA - Dependency Vulnerability Scan
+
+on:
+  push:
+    branches:
+      - qa/system-tests
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  sca:
+    name: Software Composition Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Run OWASP Dependency-Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: "DevOps-Team2-SCA"
+          path: "."
+          format: "HTML"
+          out: "dependency-check-report"
+          failOnCVSS: "7"
+
+      - name: Upload SCA report
+        uses: actions/upload-artifact@v4
+        with:
+          name: SCA-Dependency-Report
+          path: dependency-check-report
