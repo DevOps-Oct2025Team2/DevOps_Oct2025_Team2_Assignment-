@@ -13,19 +13,29 @@ from pathlib import Path
 # Blueprint
 auth_routes = Blueprint("auth_routes", __name__)
 
-# JWT Configuration (ES256)
+# ===== JWT CONFIG =====
 BASE_DIR = Path(__file__).resolve().parent
-
-
-JWT_ALGORITHM = "ES256"
 JWT_EXPIRY_HOURS = 1
 
+IS_TEST = (
+    os.getenv("TESTING") == "true"
+    or os.getenv("CI") == "true"
+)
 
-with open(BASE_DIR / "ec_private.pem", "r") as f:
-    PRIVATE_KEY = f.read()
+if IS_TEST:
+    # CI / pytest
+    JWT_ALGORITHM = "HS256"
+    PRIVATE_KEY = os.getenv("JWT_SECRET", "unit-test-secret")
+    PUBLIC_KEY = PRIVATE_KEY
+else:
+    # Local dev / production
+    JWT_ALGORITHM = "ES256"
 
-with open(BASE_DIR / "ec_public.pem", "r") as f:
-    PUBLIC_KEY = f.read()
+    with open(BASE_DIR / "ec_private.pem", "r") as f:
+        PRIVATE_KEY = f.read()
+
+    with open(BASE_DIR / "ec_public.pem", "r") as f:
+        PUBLIC_KEY = f.read()
 
 
 # LOGIN API (Authentication)
