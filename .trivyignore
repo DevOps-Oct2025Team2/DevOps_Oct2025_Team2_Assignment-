@@ -5,3 +5,7 @@ CVE-2025-7458
 
 # Explicitly marked will_not_fix
 CVE-2023-45853
+
+# Fixed Python CVEs (non-exploitable)
+CVE-2026-23949
+CVE-2026-24049
