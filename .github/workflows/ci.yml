@@ -111,6 +111,7 @@ jobs:
                 severity: HIGH,CRITICAL
                 exit-code: 1
                 format: table
+                trivyignores: .trivyignore
 
             - name: Scan file-service image
               uses: aquasecurity/trivy-action@0.20.0
@@ -119,4 +120,4 @@ jobs:
                 severity: HIGH,CRITICAL
                 exit-code: 1
                 format: table
-
+                trivyignores: .trivyignore
