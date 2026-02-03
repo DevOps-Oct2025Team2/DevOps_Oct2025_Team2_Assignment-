@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  auth-db:
+    image: postgres:16
+    container_name: auth-db
+    environment:
+      POSTGRES_USER: auth_user
+      POSTGRES_PASSWORD: auth_pass
+      POSTGRES_DB: auth_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - auth_db_data:/var/lib/postgresql/data
+  
+  file-db:
+    image: postgres:16
+    container_name: file-db
+    environment:
+      POSTGRES_USER: file_user
+      POSTGRES_PASSWORD: file_pass
+      POSTGRES_DB: file_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - file_db_data:/var/lib/postgresql/data
+
+  file-service:
+    build: ./file_service
+    container_name: file-service
+    environment:
+      DATABASE_URL: postgresql+psycopg2://file_user:file_pass@file-db:5432/file_db
+    depends_on:
+      - file-db
+    ports:
+      - "5002:5002"
+
+volumes:
+  auth_db_data:
+  file_db_data:
