@@ -3,9 +3,9 @@ name: DAST - OWASP ZAP Security Scan
 
 on:
   push:
-    branches: [ main, qa, dev ]
+    branches: [ main, qa/qa, dev ]
   pull_request:
-    branches: [ main, qa, dev ]
+    branches: [ main, qa/qa, dev ]
   workflow_dispatch:  # Allow manual trigger
 
 permissions:
