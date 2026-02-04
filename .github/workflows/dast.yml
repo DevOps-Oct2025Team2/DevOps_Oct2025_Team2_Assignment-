@@ -153,4 +153,4 @@ jobs:
           if [ -f auth-service/auth.pid ]; then kill $(cat auth-service/auth.pid) 2>/dev/null || true; fi
           if [ -f ui-gateway/ui.pid ]; then kill $(cat ui-gateway/ui.pid) 2>/dev/null || true; fi
           # Stop Docker services
-          docker-compose down -v
+          docker compose down -v
