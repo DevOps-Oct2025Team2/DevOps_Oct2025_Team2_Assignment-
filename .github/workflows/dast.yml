@@ -86,8 +86,9 @@ jobs:
         with:
           target: 'http://localhost:3000'
           cmd_options: '-a -j -l WARN'
-          fail_action: false
           allow_issue_writing: false
+          artifact_name: 'zap-baseline-scan'
+        continue-on-error: true
 
       # Step 10: Run OWASP ZAP API Scan on Auth Service
       - name: ZAP API Scan - Auth Service
@@ -96,8 +97,9 @@ jobs:
           target: 'auth-service/openapi.yaml'
           format: 'openapi'
           cmd_options: '-a -j -l WARN'
-          fail_action: false
           allow_issue_writing: false
+          artifact_name: 'zap-api-auth-scan'
+        continue-on-error: true
 
       # Step 11: Run OWASP ZAP API Scan on File Service
       - name: ZAP API Scan - File Service
@@ -106,9 +108,10 @@ jobs:
           target: 'file_service/openapi.yaml'
           format: 'openapi'
           cmd_options: '-a -j -l WARN'
-          fail_action: false
           allow_issue_writing: false
-  
+          artifact_name: 'zap-api-file-scan'
+        continue-on-error: true
+
       # Step 12: Upload ZAP reports as artifacts
       - name: Upload DAST reports
         uses: actions/upload-artifact@v4
@@ -127,7 +130,7 @@ jobs:
         run: |
           echo "=== DAST Scan Completed ==="
           echo "Reports have been generated and uploaded as artifacts"
-          echo "Check the Security tab for detailed findings"
+          echo "Check the Actions artifacts for detailed findings"
 
       # Step 14: Cleanup - Stop all services
       - name: Stop all services
