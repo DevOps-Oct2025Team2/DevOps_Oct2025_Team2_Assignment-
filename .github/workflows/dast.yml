@@ -108,24 +108,8 @@ jobs:
           cmd_options: '-a -j -l WARN'
           fail_action: false
           allow_issue_writing: false
-      
-      # Step 12: Install and run SARIF converter
-      - name: Convert ZAP JSON to SARIF
-        if: always()
-        run: |
-          pip install zap2sarif
-          zap2sarif -i report_json.json -o report.sarif
-
-      # Step 13: Upload SARIF to GitHub Security tab
-      - name: Upload SARIF to Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: report.sarif
-          category: dast
-        continue-on-error: true
-
-      # Step 14: Upload ZAP reports as artifacts
+  
+      # Step 12: Upload ZAP reports as artifacts
       - name: Upload DAST reports
         uses: actions/upload-artifact@v4
         if: always()
@@ -137,7 +121,7 @@ jobs:
             report_md.md
             report_xml.xml
 
-      # Step 15: Display scan summary
+      # Step 13: Display scan summary
       - name: ZAP Scan Summary
         if: always()
         run: |
@@ -145,7 +129,7 @@ jobs:
           echo "Reports have been generated and uploaded as artifacts"
           echo "Check the Security tab for detailed findings"
 
-      # Step 16: Cleanup - Stop all services
+      # Step 14: Cleanup - Stop all services
       - name: Stop all services
         if: always()
         run: |
