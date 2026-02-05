@@ -140,7 +140,7 @@ jobs:
           with:
             server_address: smtp.gmail.com
             server_port: 587
-            secure: true
+            secure: false
             username: ${{ secrets.SMTP_USERNAME }}
             password: ${{ secrets.SMTP_PASSWORD }}
             subject: "[CI ✅] ${{ github.repository }} @ ${{ github.ref_name }}"
@@ -163,7 +163,7 @@ jobs:
           with:
             server_address: smtp.gmail.com
             server_port: 587
-            secure: true
+            secure: false
             username: ${{ secrets.SMTP_USERNAME }}
             password: ${{ secrets.SMTP_PASSWORD }}
             subject: "[CI ❌] ${{ github.repository }} @ ${{ github.ref_name }}"
