@@ -38,11 +38,11 @@ jobs:
               run: python -m pytest -v
 
     test-file:
-        name: Test file_service
+        name: Test file-service
         runs-on: ubuntu-latest
         defaults:
             run:
-                working-directory: file_service
+                working-directory: file-service
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
