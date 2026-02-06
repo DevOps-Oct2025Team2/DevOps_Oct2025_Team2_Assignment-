@@ -2,10 +2,10 @@ Flask
 Flask-SQLAlchemy
 Flask-Migrate
 psycopg2-binary
-PyJWT
-cryptography
-Werkzeug
 pytest
-Flask-CORS
+flask-cors
+PyJWT
 jaraco.context>=6.1.0
 wheel>=0.46.2
+cryptography
+prometheus-flask-exporter
