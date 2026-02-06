@@ -1,19 +1,22 @@
-from flask import Flask
+from flask import Flask, request, jsonify
 from flask_migrate import Migrate
 from db import db
 from flask_cors import CORS
 from prometheus_flask_exporter import PrometheusMetrics
 import models
 import os
+from notify import notify_event
+from werkzeug.exceptions import HTTPException
+from datetime import datetime, timezone
 
 def create_app(database_uri=None):
     app = Flask(__name__)
 
-    # # Prometheus metrics (/metrics)
-    # metrics = PrometheusMetrics(app)
+    app.config["ENABLE_METRICS"] = os.getenv("ENABLE_METRICS", "true").lower() == "true"
 
-    # # Add a label so can filter by service in Grafana
-    # metrics.info("app_info", "File service info", version="1.0.0", service="file-service")
+    if app.config["ENABLE_METRICS"]:
+        metrics = PrometheusMetrics(app)
+        
     CORS(
         app,
         origins=["http://localhost:3000", "http://127.0.0.1:3000"],
@@ -28,7 +31,7 @@ def create_app(database_uri=None):
 
     app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["TESTING"] = True
+    app.config["TESTING"] = False
 
     app.config["UPLOAD_DIR"] = "uploads"
     app.config["MAX_UPLOAD_SIZE_BYTES"] = 5 * 1024 * 1024
@@ -39,6 +42,29 @@ def create_app(database_uri=None):
 
     from routes import bp
     app.register_blueprint(bp)
+
+    @app.errorhandler(Exception)
+    def handle_unhandled_exception(e):
+        # Let Flask handle normal HTTP errors (404, 401 etc.) normally
+        if isinstance(e, HTTPException):
+            return e
+
+        # Send ONE alert email for unexpected server errors
+        notify_event(
+            event_type="server_error",
+            dedupe_key=f"{request.method}:{request.path}:{request.remote_addr}",
+            subject="Unhandled exception (500)",
+            body=(
+                f"ts={datetime.now(timezone.utc).isoformat()} "
+                f"service={os.getenv('SERVICE_NAME','file-service')} "
+                f"event=server_error status=500 "
+                f"method={request.method} path={request.path} "
+                f"ip={request.remote_addr} "
+                f"error={type(e).__name__}"
+            ),
+        )
+        # Return safe response to client
+        return jsonify({"error": "Internal Server Error"}), 500
 
     @app.get("/health")
     def health():
