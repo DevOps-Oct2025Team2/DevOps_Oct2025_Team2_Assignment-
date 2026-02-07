@@ -37,37 +37,10 @@ services:
       SMTP_PASSWORD: ${SMTP_PASSWORD}
       RUNTIME_EMAIL_TO: ${RUNTIME_EMAIL_TO}
       EMAIL_FROM: ${EMAIL_FROM}
-      # runtime email settings (values come from .env)
-      EMAIL_RATE_LIMIT_SECONDS: ${EMAIL_RATE_LIMIT_SECONDS}
-      ENABLE_RUNTIME_EMAILS: ${ENABLE_RUNTIME_EMAILS}
-      SMTP_USERNAME: ${SMTP_USERNAME}
-      SMTP_PASSWORD: ${SMTP_PASSWORD}
-      RUNTIME_EMAIL_TO: ${RUNTIME_EMAIL_TO}
-      EMAIL_FROM: ${EMAIL_FROM}
     depends_on:
       - file-db
     ports:
       - "5002:5002"
-
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    volumes:
-      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-    ports:
-      - "9090:9090"
-    depends_on:
-      - file-service
-
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    ports:
-      - "3001:3000"
-    depends_on:
-      - prometheus
-    volumes:
-    - grafana_data:/var/lib/grafana
 
   auth-service:
     build: ./auth-service
