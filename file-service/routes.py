@@ -112,7 +112,7 @@ def upload_dashboard_file():
     
     notify_event(
         event_type="upload_success",
-        subject="[Runtime ✅] File Service: Upload successful",
+        subject="[Runtime] File Service: Upload successful",
         body=_email_body("upload_success", 201, user_id, extra=f"filename={saved.filename} size_bytes={saved.size_bytes}"),
         dedupe_key=f"user:{user_id}"
     )
