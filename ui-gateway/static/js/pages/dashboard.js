@@ -14,7 +14,6 @@ const filesContainer = document.getElementById("files");
 const msgBox = document.getElementById("msg");
 const fileInput = document.getElementById("fileInput");
 const uploadBtn = document.getElementById("uploadBtn");
-<<<<<<< HEAD
 const refreshBtn = document.getElementById("refreshBtn");
 if (refreshBtn) refreshBtn.addEventListener("click", loadDashboard);
 const confirmModal = document.getElementById("confirmModal");
